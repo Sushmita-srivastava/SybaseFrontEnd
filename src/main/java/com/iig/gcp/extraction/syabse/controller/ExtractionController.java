@@ -29,6 +29,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,11 +58,11 @@ import com.iig.gcp.extraction.utils.CSV;
 @SessionAttributes(value = { "user_name", "project_name", "jwt" })
 public class ExtractionController {
 
-	private static String SybaseBackendUrl;
+	private static String sybaseBackendUrl;
 
 	@Value("${sybase.create.micro.service.url}")
-	public void setOrclUrl(final String value) {
-		ExtractionController.SybaseBackendUrl = value;
+	public static void setOrclUrl(final String value) {
+		ExtractionController.sybaseBackendUrl = value;
 	}
 
 	private static String targetComputeUrl;
@@ -74,22 +75,24 @@ public class ExtractionController {
 	private static String feedComputeUrl;
 
 	@Value("${feed.micro.service.url}")
-	public void setFeedComputeUrl(final String value) {
+	public static void setFeedComputeUrl(final String value) {
 		ExtractionController.feedComputeUrl = value;
 	}
 
 	private static String schedularComputeUrl;
 
 	@Value("${schedular.micro.service.url}")
-	public void setSchedularUrl(final String value) {
+	public static void setSchedularUrl(final String value) {
 		ExtractionController.schedularComputeUrl = value;
 	}
 
-	private static String parent_ms;
+	private static String parentMs;
 
 	@Value("${parent.front.micro.services}")
-	public void setParent_ms(String value) {
-		this.parent_ms = value;
+	public static void setParentMs(String value) {
+		
+		ExtractionController.parentMs=value;
+
 	}
 
 	@Autowired
@@ -99,9 +102,9 @@ public class ExtractionController {
 	private AuthenticationManager authenticationManager;
 
 	@Value("${parent.front.micro.services}")
-	private String parent_micro_services;
+	private String parentMicroServices;
 
-	//public String src_val = "";
+
 	
 	private static String src_val="Sybase";
 //	
@@ -123,7 +126,7 @@ public class ExtractionController {
 		try {
 			JSONObject jsonModelObject = null;
 			if (jwt == null || jwt.equals("")) {
-				// TODO: Redirect to Access Denied Page
+
 				return new ModelAndView("/login");
 			}
 			authenticationByJWT(user_name + ":" + project_name, jwt);
@@ -156,10 +159,8 @@ public class ExtractionController {
 		jsonObject.put("userId", m.getName());
 		jsonObject.put("project", m.getProject());
 		jsonObject.put("jwt", m.getJwt());
-		// response.getWriter().write(jsonObject.toString());
 		modelMap.addAttribute("jsonObject", jsonObject.toString());
-		return new ModelAndView("redirect:" + "//" + this.parent_micro_services + "/fromChild", modelMap);
-		// System.out.println(m.getJwt());
+		return new ModelAndView("redirect:" + "//" + this.parentMicroServices + "/fromChild", modelMap);
 		// return null;
 
 	}
@@ -171,7 +172,9 @@ public class ExtractionController {
 	}
 
 	///extraction/ConnectionDetailsSybase
-	@RequestMapping(value = "/extraction/ConnectionDetailsSybase", method = RequestMethod.GET)
+	
+	@GetMapping(value="/extraction/ConnectionDetailsSybase")
+	//@RequestMapping(value = "/extraction/ConnectionDetailsSybase", method = RequestMethod.GET)
 	public ModelAndView ConnectionDetails(final ModelMap model,final HttpServletRequest request) {
 		model.addAttribute("src_val", "Sybase");
 		model.addAttribute("usernm", (String) request.getSession().getAttribute("user_name"));
@@ -188,7 +191,6 @@ public class ExtractionController {
 			.getDrives((String) request.getSession().getAttribute("project_name"));
 			model.addAttribute("drive", drive);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return new ModelAndView("extraction/ConnectionDetailsSybase");
@@ -209,7 +211,7 @@ public class ExtractionController {
 		
 		jsonObject.getJSONObject("body").getJSONObject("data").put("jwt", (String) request.getSession().getAttribute("jwt"));
 		x = jsonObject.toString();
-		resp = this.es.invokeRest(x, ExtractionController.SybaseBackendUrl + button_type);
+		resp = this.es.invokeRest(x, ExtractionController.sybaseBackendUrl + button_type);
 		//x, localhost:8181/addOracleConnection
 		String status0[] = resp.toString().split(":");
 		String status1[] = status0[1].split(",");
@@ -824,7 +826,7 @@ public class ExtractionController {
 	@RequestMapping(value = { "/extraction/logout" }, method = RequestMethod.GET)
 	public ModelAndView logout(final ModelMap modelMap,final HttpServletRequest request) {
 		request.getSession().invalidate();
-		return new ModelAndView("redirect://" + this.parent_micro_services);
+		return new ModelAndView("redirect://" + this.parentMicroServices);
 	}	
 	
 	@RequestMapping(value = "/extraction/BulkLoadTest", method = RequestMethod.POST)
@@ -881,7 +883,7 @@ public class ExtractionController {
 		 * request.getSession().getAttribute("jwt"));
 		 * json_array_str=jsonObject.toString();
 		 */
-		resp = es.invokeRest(str, SybaseBackendUrl + "addTempTableInfo");
+		resp = es.invokeRest(str, sybaseBackendUrl + "addTempTableInfo");
 		String status0[] = resp.toString().split(":");
 		String status1[] = status0[1].split(",");
 		String status = status1[0].replaceAll("\'", "").trim();
@@ -891,7 +893,7 @@ public class ExtractionController {
 		if (status.equalsIgnoreCase("Failed")) {
 			model.addAttribute("errorString", final_message);
 		} else if (status.equalsIgnoreCase("Success")) {
-			resp = es.invokeRest(json_array_metadata_str, SybaseBackendUrl + "metaDataValidation");
+			resp = es.invokeRest(json_array_metadata_str, sybaseBackendUrl + "metaDataValidation");
 			String statusNew0[] = resp.toString().split(":");
 			String statusNew1[] = statusNew0[1].split(",");
 			status = statusNew1[0].replaceAll("\'", "").trim();
@@ -985,9 +987,9 @@ public class ExtractionController {
 		if (x.contains("feed_id1")) {
 			x = x.replace("feed_id1", "feed_id");
 
-			resp = es.invokeRest(x, SybaseBackendUrl + "editTempTableInfo");
+			resp = es.invokeRest(x, sybaseBackendUrl + "editTempTableInfo");
 		} else {
-			resp = es.invokeRest(x, SybaseBackendUrl + "addTempTableInfo");
+			resp = es.invokeRest(x, sybaseBackendUrl + "addTempTableInfo");
 		}
 
 		String status0[] = resp.toString().split(":");
@@ -1002,7 +1004,7 @@ public class ExtractionController {
 			JSONObject jsonObject1 = new JSONObject(x);
 			src_sys_id = jsonObject1.getJSONObject("body").getJSONObject("data").getString("feed_id");
 			String json_array_metadata_str = es.getJsonFromFeedSequence(project, src_sys_id);
-			resp = es.invokeRestAsyncronous(json_array_metadata_str, SybaseBackendUrl + "metaDataValidation");
+			resp = es.invokeRestAsyncronous(json_array_metadata_str, sybaseBackendUrl + "metaDataValidation");
 			
 			if (resp.equalsIgnoreCase("Started")) {
 				model.addAttribute("successString", "Metadata validation started");
@@ -1065,7 +1067,7 @@ public class ExtractionController {
 		File file = convert(multiPartFile1);
 		String json_array_str = es.getJsonFromFile(file, usernm, project, Integer.parseInt(src_sys_id));
 		String json_array_metadata_str = es.getJsonFromFeedSequence(project, src_sys_id);
-		resp = es.invokeRest(json_array_str, SybaseBackendUrl + "editTempTableInfo");
+		resp = es.invokeRest(json_array_str, sybaseBackendUrl + "editTempTableInfo");
 		String status0[] = resp.toString().split(":");
 		String status1[] = status0[1].split(",");
 		String status = status1[0].replaceAll("\'", "").trim();
@@ -1077,7 +1079,7 @@ public class ExtractionController {
 		}
 		else if (status.equalsIgnoreCase("Success")) {
 	
-			resp = es.invokeRestAsyncronous(json_array_metadata_str, SybaseBackendUrl + "metaDataValidation");
+			resp = es.invokeRestAsyncronous(json_array_metadata_str, sybaseBackendUrl + "metaDataValidation");
 			if (resp.equalsIgnoreCase("Started")) {
 				model.addAttribute("SuccessString", "Metadata validation started");
 			}
