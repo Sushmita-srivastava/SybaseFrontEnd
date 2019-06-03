@@ -85,21 +85,29 @@ function loadcheck(val) {
 			});
 		}
 	} else if (val == 'bulk_load') {
-		
+		alert("in bulk load");
 		document.getElementById("schdiv").style.display="none";
 		
 		var selection = $("input[name='radio']:checked").val();
 		if(document.getElementById("feed_id1").style.display==="none")
 		{
 			var src_sys_id = document.getElementById("feed_id").value;
+			alert("src_sys_id 111  "+src_sys_id);
 		}
 		else
 		{
+			
 			var src_sys_id = document.getElementById("feed_id1").value;
+			alert("src_sys_id 222 "+src_sys_id);
 		}
+
+		alert("in line 104");
 		document.getElementById("bord").style.display="block";
-		document.getElementById("Schdiv").innerHTML="";
+		alert("in line 106")
+		//document.getElementById("Schdiv").innerHTML="";
+		alert("in line 108")
 		document.getElementById("but").style.display="none";
+		alert("in line 110");
 		$.post('${pageContext.request.contextPath}/extraction/BulkLoadTest',
 		{
 			src_sys_id : src_sys_id,
@@ -591,7 +599,7 @@ function jsonconstruct() {
 						%>
 						<form class="forms-sample" id="DataDetails" name="DataDetails"
 							method="POST"
-							action="${pageContext.request.contextPath}/extraction/DataDetailsOracle3"
+							action="${pageContext.request.contextPath}/extraction/DataDetailsSybase3"
 							enctype="application/json">
 							<input type="hidden" name="x" id="x" value=""> <input
 								type="hidden" name="src_val" id="src_val" value="${src_val}">
@@ -653,6 +661,7 @@ function jsonconstruct() {
 									</div>
 								</div>
 								<div class="col-sm-4">
+								
 									<div class="form-check form-check-info">
 										<label class="form-check-label"> <input type="radio"
 											class="form-check-input" name="bulk" id="bulk2"

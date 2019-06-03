@@ -16,7 +16,7 @@ $(document).ready(function() {
 			var src_sys_id = document.getElementById("feed_id1").value;
 			$
 					.post(
-							'${pageContext.request.contextPath}/extraction/DataDetailsEditOracle1',
+							'${pageContext.request.contextPath}/extraction/DataDetailsEditSybase1',
 							{
 								src_sys_id : src_sys_id,
 								src_val : src_val

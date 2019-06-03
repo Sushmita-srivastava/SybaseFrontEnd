@@ -325,8 +325,8 @@ public class ExtractionServiceImpl implements ExtractionService {
 		ConnectionMaster conn = new ConnectionMaster();
 		
 		
-		System.out.println(src_val);
-		System.out.println(src_sys_id);
+		System.out.println("src_val in service   "+src_val);
+		System.out.println("src_sys_id in service   "+src_sys_id);
 		try {
 			connection = ConnectionUtils.getConnection();
 			pstm = connection.prepareStatement(
@@ -458,9 +458,13 @@ public class ExtractionServiceImpl implements ExtractionService {
 			}
 		}
 		try {
-			query = "select distinct table_name from all_tables where owner='" + schema_name + "' order by table_name";
-			Class.forName("oracle.jdbc.driver.OracleDriver");
-			connectionUrl = "jdbc:oracle:thin:@//" + host + ":" + port + "/" + service + "";
+			//query = "select distinct table_name from all_tables where owner='" + schema_name + "' order by table_name";
+			
+			query="select convert(varchar(30),o.name) AS table_name from sysobjects o where type = 'U'order by table_name";
+			
+			
+			Class.forName("com.sybase.jdbc4.jdbc.SybDriver");
+			connectionUrl = "jdbc:sybase:Tds:" + host + ":" + port + "/" + schema_name + "";
 			String pass = EncryptionUtil.decyptPassword(encrypt, password);
 			serverConnection = DriverManager.getConnection(connectionUrl, username, pass);
 			st = serverConnection.createStatement();
@@ -501,14 +505,16 @@ public class ExtractionServiceImpl implements ExtractionService {
 				encrypt = cm.getEncrypt();
 			}
 		}
-
+System.out.println("table name>>>>>>>>>>>   "+table_name);
 		String tbls[] = table_name.split(",");
 		for (int i = 0; i < tbls.length; i++) {
 			try {
 				String tblsx[] = tbls[i].split("\\.");
-				query = "SELECT column_name FROM all_tab_cols where table_name='" + tblsx[1] + "' and owner='" + schema_name + "' and column_id is not null order by column_name";
-				Class.forName("oracle.jdbc.driver.OracleDriver");
-				connectionUrl = "jdbc:oracle:thin:@//" + host + ":" + port + "/" + service + "";
+				//query = "SELECT column_name FROM all_tab_cols where table_name='" + tblsx[1] + "' and owner='" + schema_name + "' and column_id is not null order by column_name";
+				query="select b.name as coulumnName from sysobjects a left join syscolumns b on a.id=b.id where a.name='"+tblsx[1]+"'";
+				System.out.println("query"+query);
+				Class.forName("com.sybase.jdbc4.jdbc.SybDriver");
+				connectionUrl = "jdbc:sybase:Tds:" + host + ":" + port + "/" + service;
 				String pass = EncryptionUtil.decyptPassword(encrypt, password);
 				serverConnection = DriverManager.getConnection(connectionUrl, username, pass);
 				st = serverConnection.createStatement();
@@ -540,6 +546,7 @@ public class ExtractionServiceImpl implements ExtractionService {
 		
 		System.out.println("Source>>>"+src_val);
 		System.out.println("project_id>>>"+project_id);
+		
 		try {
 			
 			
@@ -563,6 +570,10 @@ public class ExtractionServiceImpl implements ExtractionService {
 				ssm.setTable_list(rs.getString(3));
 				arrssm.add(ssm);
 			}
+			
+			
+			System.out.println("arrsm    "+arrssm.size());
+			
 		} catch (SQLException e) {
 			System.out.println("Exception occured " + e);
 			throw e;
@@ -785,10 +796,10 @@ public class ExtractionServiceImpl implements ExtractionService {
 		}
 		try {
 			//query = "select distinct owner from all_tables where upper(owner) not like '%SYS%' and upper(owner) not like '%XDB%'";
-			query = "select convert(varchar(30),o.name) AS table_name from sysobjects o where type = 'U'order by table_name";
-			
+			query = "select d.name from sysdatabases d";
+			//changing query to list down all databases here
 			Class.forName("com.sybase.jdbc4.jdbc.SybDriver");
-			connectionUrl = "jdbc:sybase:Tds:" + host + ":" + port + "/" + service;
+			connectionUrl = "jdbc:sybase:Tds:" + host + ":" + port;// + "/" + service;
 			System.out.println("************connectionurl******  "+connectionUrl);
 
 			String pass = EncryptionUtil.decyptPassword(encrypt, password);

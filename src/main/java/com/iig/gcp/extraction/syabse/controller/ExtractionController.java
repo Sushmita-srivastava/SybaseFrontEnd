@@ -517,6 +517,7 @@ public class ExtractionController {
 			@ModelAttribute("schema_name") String schema_name, ModelMap model, HttpServletRequest request) throws UnsupportedOperationException, Exception {
 		String href1 = es.getBulkDataTemplate(src_sys_id);
 		String db_name = null;
+		System.out.println("Schema >> "+schema_name);
 		href1 = "field.xls";
 		model.addAttribute("href1", href1);
 		ConnectionMaster conn_val = es.getConnections1(src_val, src_sys_id);
@@ -572,12 +573,22 @@ public class ExtractionController {
 	@RequestMapping(value = "/extraction/ExtractData", method = RequestMethod.GET)
 	public ModelAndView ExtractData(final ModelMap model,final HttpServletRequest request) throws IOException {
 		try {
-			model.addAttribute("src_val", "Oracle");
+			model.addAttribute("src_val", "Sybase");
 			ArrayList<SourceSystemMaster> src_sys_val1 = new ArrayList<SourceSystemMaster>();
 			ArrayList<SourceSystemMaster> src_sys_val;
+			
+			System.out.println("this.src_val"+this.src_val);
+			
 			src_sys_val = this.es.getSources(this.src_val, (String) request.getSession().getAttribute("project_name"));
+			
+			
+			System.out.println("src_sys_val   "+src_sys_val);
+			
 
 			for (SourceSystemMaster ssm : src_sys_val) {
+				
+				System.out.println("db name       "+ssm.getDb_name());
+				
 				if ((ssm.getFile_list() == null || ssm.getFile_list().isEmpty()) && (ssm.getTable_list() == null || ssm.getTable_list().isEmpty())
 						&& (ssm.getDb_name() == null || ssm.getDb_name().isEmpty())) {
 					;// 3rd Added for Hive 
@@ -586,13 +597,16 @@ public class ExtractionController {
 				}
 			}
 			
-			model.addAttribute("src_sys_val", src_sys_val1);
+			model.addAttribute("src_sys_val", src_sys_val);
 			model.addAttribute("usernm", (String) request.getSession().getAttribute("user_name"));
 			model.addAttribute("project", (String) request.getSession().getAttribute("project_name"));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		System.out.println("src_val"+src_val);
+		
 		return new ModelAndView("extraction/ExtractData");
 	}
 
@@ -647,6 +661,9 @@ public class ExtractionController {
 		model.addAttribute("src_sys_val", src_sys_val);
 		model.addAttribute("usernm", (String) request.getSession().getAttribute("user_name"));
 		model.addAttribute("project", (String) request.getSession().getAttribute("project_name"));
+		
+		System.out.println("in extract data 2 src_val>>>"+src_val);
+		
 		return new ModelAndView("extraction/ExtractData");
 	}
 
@@ -738,7 +755,7 @@ public class ExtractionController {
 			ArrayList<String> db_name = this.es.getHivedbList((String) request.getSession().getAttribute("project_name"));
 			model.addAttribute("db_name", db_name);
 			model.addAttribute("src_sys_val1", src_sys_val1);
-//		model.addAttribute("src_sys_val1", src_sys_val2);
+       //model.addAttribute("src_sys_val1", src_sys_val2);
 			model.addAttribute("usernm", (String) request.getSession().getAttribute("user_name"));
 			model.addAttribute("project", (String) request.getSession().getAttribute("project_name"));
 		} catch (Exception e) {
@@ -814,8 +831,17 @@ public class ExtractionController {
 	public ModelAndView BulkLoadTest(@Valid @ModelAttribute("src_sys_id") int src_sys_id, @ModelAttribute("src_val") String src_val, @ModelAttribute("selection") String selection, ModelMap model,
 			HttpServletRequest request) throws UnsupportedOperationException, Exception {
 		// String href1 = es.getBulkDataTemplate(src_sys_id);
+		
 		String href1 = "/assets/oracle/Juniper_Extraction_Bulk_Upload_Template.xlsm";
+		
+		
+		
 		model.addAttribute("href1", href1);
+		
+		System.out.println("href1 >>>>>>>>>  "+href1);
+		System.out.println("src_val>>>>>>"+ src_val);
+		System.out.println("src_sys_id >>>>>>    "+ src_sys_id);
+		
 		ConnectionMaster conn_val = es.getConnections1(src_val, src_sys_id);
 		model.addAttribute("conn_val", conn_val);
 		model.addAttribute("src_sys_id", src_sys_id);
@@ -946,7 +972,7 @@ public class ExtractionController {
 
 	}
 
-	@RequestMapping(value = "/extraction/DataDetailsOracle3", method = RequestMethod.POST)
+	@RequestMapping(value = "/extraction/DataDetailsSybase3", method = RequestMethod.POST)
 	public ModelAndView DataDetails3(@Valid @ModelAttribute("src_val") String src_val, @ModelAttribute("x") String x, ModelMap model, HttpServletRequest request)
 			throws UnsupportedOperationException, Exception {
 		String resp = "";
@@ -1003,7 +1029,7 @@ public class ExtractionController {
 		return new ModelAndView("extraction/DataDetails" + src_val);
 	}
 
-	@RequestMapping(value = "/extraction/DataDetailsEditOracle1", method = RequestMethod.POST)
+	@RequestMapping(value = "/extraction/DataDetailsEditSybase1", method = RequestMethod.POST)
 	public ModelAndView DataDetailsEdit1(@Valid @ModelAttribute("src_sys_id") int src_sys_id, @ModelAttribute("src_val") String src_val, ModelMap model, HttpServletRequest request)
 			throws UnsupportedOperationException, Exception {
 //		  String href1=es.getBulkDataTemplate(src_sys_id); 
@@ -1021,7 +1047,7 @@ public class ExtractionController {
 		model.addAttribute("counter_val", arrddb.size());
 		model.addAttribute("usernm", (String) request.getSession().getAttribute("user_name"));
 		model.addAttribute("project", (String) request.getSession().getAttribute("project_name"));
-		return new ModelAndView("extraction/DataDetailsEditOracle1");
+		return new ModelAndView("extraction/DataDetailsEditSybase1");
 	}
 
 	

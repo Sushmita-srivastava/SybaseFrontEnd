@@ -2,6 +2,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <script>
 	function jsonconstruct() {
+     alert("1");
+		
 		var ext_type = document.getElementById("ext_type").value;
 		if (ext_type == "Batch") {
 			document.getElementById("cron").value = cron_construct();
@@ -12,8 +14,8 @@
 		});
 		var x = '{"header":{},"body":{"data":' + JSON.stringify(data) + '}}';
 		document.getElementById('x').value = x;
-		//alert(x);
-		//console.log(x);
+	alert(x);
+	console.log(x);
 		document.getElementById('ExtractData').submit();
 	}
 	/* function jsonconstruct1() {
@@ -41,12 +43,13 @@
 										function() {
 											$("#loading").show();
 											var feed_name = $(this).val();
-											//alert("feed_name "+feed_name)
+								alert("feed_name "+feed_name)
 											var src_val = document
 													.getElementById("src_val").value;
-											//alert("src_val "+src_val)
-											if (src_val == "Oracle") {
+								alert("src_val "+src_val)
+											if (src_val == "Sybase") {
 												$("#selectExtractmode").show();
+												alert(src_val)
 											}
 											$
 													.post(
@@ -62,6 +65,7 @@
 																				data);
 																enableForm(ExtractData);
 															});
+											
 										});
 						$("#success-alert").hide();
 						$("#success-alert").fadeTo(10000, 10).slideUp(2000,
@@ -74,6 +78,7 @@
 					});
 
 	function funccheck(val) {
+		
 
 		if (val == 'nifi') {
 			$("#datdyn1").show();
@@ -89,6 +94,7 @@
 
 <div class="main-panel">
 	<div class="content-wrapper">
+	
 		<div class="row">
 			<div class="col-12 grid-margin stretch-card">
 				<div class="card">
@@ -155,7 +161,7 @@
 										<label class="form-check-label"> <input type="radio"
 											class="form-control form-check-input" name="extraction_mode" id="radio2"
 											value="C" >
-											Native C Driver
+											Sybase Jconnect
 										</label>
 									</div>
 								</div>
