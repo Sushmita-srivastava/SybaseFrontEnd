@@ -104,7 +104,7 @@ function loadcheck(val) {
 		alert("in line 104");
 		document.getElementById("bord").style.display="block";
 		alert("in line 106")
-		//document.getElementById("Schdiv").innerHTML="";
+	//document.getElementById("Schdiv").innerHTML="";
 		alert("in line 108")
 		document.getElementById("but").style.display="none";
 		alert("in line 110");
