@@ -71,11 +71,11 @@ public class ExtractionController {
 		ExtractionController.targetComputeUrl = value;
 	}
 
-	private static String feed_compute_url;
+	private static String feedComputeUrl;
 
 	@Value("${feed.micro.service.url}")
 	public void setFeedComputeUrl(final String value) {
-		ExtractionController.feed_compute_url = value;
+		ExtractionController.feedComputeUrl = value;
 	}
 
 	private static String schedularComputeUrl;
@@ -398,7 +398,7 @@ public class ExtractionController {
 		JSONObject jsonObject = new JSONObject(x);
 		jsonObject.getJSONObject("body").getJSONObject("data").put("jwt", (String) request.getSession().getAttribute("jwt"));
 		x = jsonObject.toString();
-		resp = this.es.invokeRest(x, ExtractionController.feed_compute_url + button_type);
+		resp = this.es.invokeRest(x, ExtractionController.feedComputeUrl + button_type);
 		model.addAttribute("usernm", request.getSession().getAttribute("user_name"));
 		model.addAttribute("project", (String) request.getSession().getAttribute("project_name"));
 		String status0[] = resp.toString().split(":");
