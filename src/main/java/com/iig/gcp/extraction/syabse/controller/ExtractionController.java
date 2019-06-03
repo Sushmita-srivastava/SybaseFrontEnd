@@ -78,11 +78,11 @@ public class ExtractionController {
 		ExtractionController.feed_compute_url = value;
 	}
 
-	private static String scheular_compute_url;
+	private static String schedularComputeUrl;
 
 	@Value("${schedular.micro.service.url}")
 	public void setSchedularUrl(final String value) {
-		ExtractionController.scheular_compute_url = value;
+		ExtractionController.schedularComputeUrl = value;
 	}
 
 	private static String parent_ms;
@@ -637,7 +637,7 @@ public class ExtractionController {
 		jsonObject.getJSONObject("body").getJSONObject("data").put("jwt", (String) request.getSession().getAttribute("jwt"));
 		x = jsonObject.toString();
 		// if (ext_type.equalsIgnoreCase("Batch")) {
-		resp = this.es.invokeRest(x, ExtractionController.scheular_compute_url + "createDag");
+		resp = this.es.invokeRest(x, ExtractionController.schedularComputeUrl + "createDag");
 		this.es.updateLoggerTable(feed_name);
 		// } else {
 		// resp = es.invokeRest(x, "extractData");
@@ -678,7 +678,7 @@ public class ExtractionController {
 		JSONObject jsonObject = new JSONObject(x);
 		jsonObject.getJSONObject("body").getJSONObject("data").put("jwt", (String) request.getSession().getAttribute("jwt"));
 		x = jsonObject.toString();
-		final_message = this.es.invokeRest(x, ExtractionController.scheular_compute_url + "feednm/extractData");
+		final_message = this.es.invokeRest(x, ExtractionController.schedularComputeUrl + "feednm/extractData");
 		model.addAttribute("successString", final_message);
 		/*
 		 * String status0[] = resp.toString().split(":"); System.out.println(status0[0]
