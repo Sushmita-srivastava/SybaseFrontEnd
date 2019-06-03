@@ -1,2 +1,2 @@
-# juniper-OracleExtractionMS
-Juniper MS for Oracle Extraction
+# juniper-SybaseExtractionMS
+Juniper MS for Sybase Extraction
