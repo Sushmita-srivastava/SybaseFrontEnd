@@ -64,11 +64,11 @@ public class ExtractionController {
 		ExtractionController.SybaseBackendUrl = value;
 	}
 
-	private static String target_compute_url;
+	private static String targetComputeUrl;
 
 	@Value("${target.micro.service.url}")
-	public void setTgtComputeUrl(final String value) {
-		ExtractionController.target_compute_url = value;
+	public static void setTgtComputeUrl(final String value) {
+		ExtractionController.targetComputeUrl = value;
 	}
 
 	private static String feed_compute_url;
@@ -306,7 +306,7 @@ public class ExtractionController {
 	public ModelAndView TargetDetails1(@Valid @ModelAttribute("x") final String x, @ModelAttribute("button_type") final String button_type,final ModelMap model,final HttpServletRequest request)
 			throws UnsupportedOperationException, Exception {
 		String resp = null;
-		resp = this.es.invokeRest(x, ExtractionController.target_compute_url + button_type);
+		resp = this.es.invokeRest(x, ExtractionController.targetComputeUrl + button_type);
 		String status0[] = resp.toString().split(":");
 		String status1[] = status0[1].split(",");
 		String status = status1[0].replaceAll("\'", "").trim();
