@@ -7,7 +7,7 @@
 		var port = document.getElementById("port").value;
 		var user_name = document.getElementById("user_name").value;
 		var password = document.getElementById("password").value;
-		var service_name = document.getElementById("service_name").value;
+		var db_name = document.getElementById("db_name").value;
 		var system = document.getElementById("system").value;
 		var errors = [];
 
@@ -26,8 +26,8 @@
 		if (!checkLength(password)) {
 			errors[errors.length] = "Password";
 		}
-		if (!checkLength(service_name)) {
-			errors[errors.length] = "Service Name";
+		if (!checkLength(db_name)) {
+			errors[errors.length] = "Database Name";
 		}
 		if (!checkLength(system)) {
 			errors[errors.length] = "System";
@@ -46,7 +46,7 @@
 		var x = '{"header":{},"body":{"data":' + JSON.stringify(data) + '}}';
 		document.getElementById('x').value = x;
 		//console.log(x);
-		//alert(x);
+		alert(x);
 		document.getElementById('ConnectionDetails').submit();
 	}
 	$(document)
@@ -84,7 +84,7 @@
 	function funccheck(val) {
 		if (val == 'create') {
 			//window.location.reload();
-			window.location.href = "${pageContext.request.contextPath}/extraction/ConnectionDetailsOracle";
+			window.location.href = "${pageContext.request.contextPath}/extraction/ConnectionDetailsSybase";
 		} else {
 			document.getElementById('connfunc').style.display = "block";
 			document.getElementById('cud').innerHTML = "";
@@ -125,7 +125,7 @@
 								document.getElementById("port").value = "5000";
 								document.getElementById("user_name").value = "sa";
 								document.getElementById("password").value = "admin_ase";
-								document.getElementById("service_name").value = "pubs2";
+								document.getElementById("db_name").value = "pubs2";
 							}
 						</script>
 						<form class="forms-sample" id="ConnectionDetails"
@@ -211,7 +211,7 @@
 									</div>
 									<div class="form-group" id="service">
 										<label>Database Name *</label> <input type="text"
-											class="form-control" id="service_name" name="service_name"
+											class="form-control" id="db_name" name="db_name"
 											placeholder="Database Name">
 									</div>
 									<div class="form-group">
@@ -224,7 +224,7 @@
 										</select>
 									</div>
 								</fieldset>
-								<button onclick="return jsonconstruct('addOracleConnection');"
+								<button onclick="return jsonconstruct('addSybaseConnection');"
 									class="btn btn-rounded btn-gradient-info mr-2">Test &
 									Save</button>
 							</div>

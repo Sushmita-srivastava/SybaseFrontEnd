@@ -208,7 +208,8 @@ public class ExtractionServiceImpl implements ExtractionService {
 				conn.setUsername(rs.getString(5));
 				conn.setPassword(rs.getBytes(6));
 				conn.setDatabase_name(rs.getString(7));
-				conn.setService_name(rs.getString(8));
+				
+		    	//conn.setService_name(rs.getString(8));
 				conn.setSystem(getSystemName(rs.getInt(9)));
 				conn.setDrive_id(rs.getInt(10));
 				DriveMaster dm = getDrivesDetails(rs.getInt(10));
@@ -366,7 +367,7 @@ public class ExtractionServiceImpl implements ExtractionService {
 				conn.setUsername(rs.getString(6));
 				conn.setPassword(rs.getBytes(7));
 				conn.setDatabase_name(rs.getString(8));
-				conn.setService_name(rs.getString(9));
+				//conn.setService_name(rs.getString(9));
 				conn.setSystem(getSystemName(rs.getInt(10)));
 			}
 			connection.close();
@@ -443,7 +444,7 @@ public class ExtractionServiceImpl implements ExtractionService {
 	public ArrayList<String> getTables(String src_val, int conn_id, String schema_name, String project_id, String db_name) throws Exception {
 		ArrayList<ConnectionMaster> arrcm = getConnections(src_val, project_id);
 		ArrayList<String> arrTbl = new ArrayList<String>();
-		String query = null, connectionUrl = null, host = null, port = null, username = null, db = null, service = null;
+		String query = null, connectionUrl = null, host = null, port = null, username = null, db = null, database = null;
 		byte[] password = null, encrypt = null;
 		Connection serverConnection = null;
 		Statement st = null;
@@ -453,7 +454,8 @@ public class ExtractionServiceImpl implements ExtractionService {
 				port = cm.getPort_no();
 				username = cm.getUsername();
 				password = cm.getPassword();
-				service = cm.getService_name();
+//				service = cm.getService_name();
+				database= cm.getDatabase_name();
 				encrypt = cm.getEncrypt();
 			}
 		}
@@ -491,7 +493,7 @@ public class ExtractionServiceImpl implements ExtractionService {
 	public ArrayList<String> getFields(String id, String src_val, String table_name, int conn_id, String schema_name, String project_id, String db_name) throws Exception {
 		ArrayList<ConnectionMaster> arrcm = getConnections(src_val, project_id);
 		ArrayList<String> arrFld = new ArrayList<String>();
-		String query = null, connectionUrl = null, host = null, port = null, username = null, db = null, service = null;
+		String query = null, connectionUrl = null, host = null, port = null, username = null, db = null, database = null;
 		byte[] password = null, encrypt = null;
 		Connection serverConnection = null;
 		Statement st = null;
@@ -501,7 +503,7 @@ public class ExtractionServiceImpl implements ExtractionService {
 				port = cm.getPort_no();
 				username = cm.getUsername();
 				password = cm.getPassword();
-				service = cm.getService_name();
+				database = cm.getDatabase_name();
 				encrypt = cm.getEncrypt();
 			}
 		}
@@ -514,7 +516,7 @@ System.out.println("table name>>>>>>>>>>>   "+table_name);
 				query="select b.name as coulumnName from sysobjects a left join syscolumns b on a.id=b.id where a.name='"+tblsx[1]+"'";
 				System.out.println("query"+query);
 				Class.forName("com.sybase.jdbc4.jdbc.SybDriver");
-				connectionUrl = "jdbc:sybase:Tds:" + host + ":" + port + "/" + service;
+				connectionUrl = "jdbc:sybase:Tds:" + host + ":" + port + "/" + database;
 				String pass = EncryptionUtil.decyptPassword(encrypt, password);
 				serverConnection = DriverManager.getConnection(connectionUrl, username, pass);
 				st = serverConnection.createStatement();
@@ -779,7 +781,7 @@ System.out.println("table name>>>>>>>>>>>   "+table_name);
 	public ArrayList<String> getSchema(String src_val, int conn_id, String project_id, String db_name) throws Exception {
 		ArrayList<ConnectionMaster> arrcm = getConnections(src_val, project_id);
 		ArrayList<String> arrTbl = new ArrayList<String>();
-		String query = null, connectionUrl = null, host = null, port = null, username = null, db = null, service = null;
+		String query = null, connectionUrl = null, host = null, port = null, username = null, db = null, database = null;
 		byte[] password = null, encrypt = null;
 		Connection serverConnection = null;
 		Statement st = null;
@@ -790,7 +792,7 @@ System.out.println("table name>>>>>>>>>>>   "+table_name);
 				username = cm.getUsername();
 				password = cm.getPassword();
 				db = cm.getDatabase_name();
-				service = cm.getService_name();
+				database = cm.getDatabase_name();
 				encrypt = cm.getEncrypt();
 			}
 		}

@@ -10,7 +10,7 @@ public class ConnectionMaster {
 	private String username;
 	private byte[] password;
 	private String database_name;
-	private String service_name;
+//	private String service_name;
 	private String system;
 	private int drive_id;
 	private String drive_name;
@@ -95,10 +95,10 @@ public class ConnectionMaster {
 	public void setDatabase_name(String database_name) {
 		this.database_name = database_name;
 	}
-	public String getService_name() {
-		return service_name;
-	}
-	public void setService_name(String service_name) {
-		this.service_name = service_name;
-	}	
+//	public String getService_name() {
+//		return service_name;
+//	}
+//	public void setService_name(String service_name) {
+//		this.service_name = service_name;
+//	}	
 }

@@ -17,6 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,6 +44,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.iig.gcp.CustomAuthenticationProvider;
+import com.iig.gcp.IIGStarterParent;
 import com.iig.gcp.extraction.sybase.dto.ConnectionMaster;
 import com.iig.gcp.extraction.sybase.dto.CountryMaster;
 import com.iig.gcp.extraction.sybase.dto.DataDetailBean;
@@ -58,42 +61,24 @@ import com.iig.gcp.extraction.utils.CSV;
 @SessionAttributes(value = { "user_name", "project_name", "jwt" })
 public class ExtractionController {
 
-	private static String sybaseBackendUrl;
+	private static final Logger logger = LogManager.getLogger(ExtractionController.class);
 
 	@Value("${sybase.create.micro.service.url}")
-	public static void setOrclUrl(final String value) {
-		ExtractionController.sybaseBackendUrl = value;
-	}
-
-	private static String targetComputeUrl;
+	private String sybaseBackendUrl;
+	
 
 	@Value("${target.micro.service.url}")
-	public static void setTgtComputeUrl(final String value) {
-		ExtractionController.targetComputeUrl = value;
-	}
-
-	private static String feedComputeUrl;
-
+	private String targetComputeUrl;
+	
 	@Value("${feed.micro.service.url}")
-	public static void setFeedComputeUrl(final String value) {
-		ExtractionController.feedComputeUrl = value;
-	}
-
-	private static String schedularComputeUrl;
+	private String feedComputeUrl;
 
 	@Value("${schedular.micro.service.url}")
-	public static void setSchedularUrl(final String value) {
-		ExtractionController.schedularComputeUrl = value;
-	}
+	private String schedularComputeUrl;
 
-	private static String parentMs;
-
+	
 	@Value("${parent.front.micro.services}")
-	public static void setParentMs(String value) {
-		
-		ExtractionController.parentMs=value;
-
-	}
+	private String parentMs;
 
 	@Autowired
 	private ExtractionService es;
@@ -103,15 +88,9 @@ public class ExtractionController {
 
 	@Value("${parent.front.micro.services}")
 	private String parentMicroServices;
-
-
 	
-	private static String src_val="Sybase";
-//	
-//	  @Value("${src_val}") 
-//	public void setSrc_val(final String value) {
-//		  ExtractionController.src_val = value;
-//		 }
+	final static String Source;
+	static {Source="Sybase";}
 
 
 	@RequestMapping(value = { "/", "/login" }, method = RequestMethod.GET)
@@ -120,7 +99,6 @@ public class ExtractionController {
 		String user_name = jObj.getString("userId");
 		String project_name = jObj.getString("project");
 		String jwt = jObj.getString("jwt");
-		//this.src_val = src_val;
 
 		// Validate the token at the first place
 		try {
@@ -131,7 +109,7 @@ public class ExtractionController {
 			}
 			authenticationByJWT(user_name + ":" + project_name, jwt);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			return new ModelAndView("/login");
 			// redirect to Login Page
 		}
@@ -161,7 +139,7 @@ public class ExtractionController {
 		jsonObject.put("jwt", m.getJwt());
 		modelMap.addAttribute("jsonObject", jsonObject.toString());
 		return new ModelAndView("redirect:" + "//" + this.parentMicroServices + "/fromChild", modelMap);
-		// return null;
+
 
 	}
 
@@ -176,7 +154,8 @@ public class ExtractionController {
 	@GetMapping(value="/extraction/ConnectionDetailsSybase")
 	//@RequestMapping(value = "/extraction/ConnectionDetailsSybase", method = RequestMethod.GET)
 	public ModelAndView ConnectionDetails(final ModelMap model,final HttpServletRequest request) {
-		model.addAttribute("src_val", "Sybase");
+		
+		model.addAttribute("src_val", Source);
 		model.addAttribute("usernm", (String) request.getSession().getAttribute("user_name"));
 		model.addAttribute("project", (String) request.getSession().getAttribute("project_name"));
 
@@ -185,13 +164,13 @@ public class ExtractionController {
 		try {
 			system = this.es.getSystem((String) request.getSession().getAttribute("project_name"));
 			model.addAttribute("system", system);
-			ArrayList<ConnectionMaster> conn_val = this.es.getConnections(this.src_val, (String) request.getSession().getAttribute("project_name"));
+			ArrayList<ConnectionMaster> conn_val = this.es.getConnections(Source, (String) request.getSession().getAttribute("project_name"));
 			model.addAttribute("conn_val", conn_val);
 			ArrayList<DriveMaster> drive =this.es
 			.getDrives((String) request.getSession().getAttribute("project_name"));
 			model.addAttribute("drive", drive);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return new ModelAndView("extraction/ConnectionDetailsSybase");
 	}
@@ -203,15 +182,11 @@ public class ExtractionController {
 		String resp = null;
 		
 		
-		System.out.println(">>>>>>>>>>>>>>>>>>>"+x);
-		System.out.println(">>>>>>>>>>>>>>>>"+src_val);
-		
-		
+					
 		JSONObject jsonObject = new JSONObject(x);
-		
 		jsonObject.getJSONObject("body").getJSONObject("data").put("jwt", (String) request.getSession().getAttribute("jwt"));
 		x = jsonObject.toString();
-		resp = this.es.invokeRest(x, ExtractionController.sybaseBackendUrl + button_type);
+		resp = this.es.invokeRest(x, sybaseBackendUrl + button_type);
 		//x, localhost:8181/addOracleConnection
 		String status0[] = resp.toString().split(":");
 		String status1[] = status0[1].split(",");
@@ -273,7 +248,7 @@ public class ExtractionController {
 			model.addAttribute("tproj", tproj);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return new ModelAndView("extraction/TargetDetails");
 	}
@@ -298,7 +273,7 @@ public class ExtractionController {
 			model.addAttribute("buck", buck);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return new ModelAndView("extraction/TargetDetails0");
 	}
@@ -308,7 +283,7 @@ public class ExtractionController {
 	public ModelAndView TargetDetails1(@Valid @ModelAttribute("x") final String x, @ModelAttribute("button_type") final String button_type,final ModelMap model,final HttpServletRequest request)
 			throws UnsupportedOperationException, Exception {
 		String resp = null;
-		resp = this.es.invokeRest(x, ExtractionController.targetComputeUrl + button_type);
+		resp = this.es.invokeRest(x, targetComputeUrl + button_type);
 		String status0[] = resp.toString().split(":");
 		String status1[] = status0[1].split(",");
 		String status = status1[0].replaceAll("\'", "").trim();
@@ -349,7 +324,7 @@ public class ExtractionController {
 			model.addAttribute("drive", drive);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return new ModelAndView("extraction/TargetDetailsEdit");
 	}
@@ -362,13 +337,13 @@ public class ExtractionController {
 		model.addAttribute("src_val", "Sybase");
 		ArrayList<SourceSystemMaster> src_sys_val;
 		try {
-			src_sys_val = this.es.getSources(this.src_val, (String) request.getSession().getAttribute("project_name"));
+			src_sys_val = this.es.getSources(this.Source, (String) request.getSession().getAttribute("project_name"));
 			model.addAttribute("src_sys_val", src_sys_val);
 			
-			System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+src_val);
+			System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+Source);
 			
 			
-			ArrayList<ConnectionMaster> conn_val = this.es.getConnections(this.src_val, (String) request.getSession().getAttribute("project_name"));
+			ArrayList<ConnectionMaster> conn_val = this.es.getConnections(this.Source, (String) request.getSession().getAttribute("project_name"));
 			model.addAttribute("conn_val", conn_val);
 			ArrayList<TargetMaster> tgt = this.es.getTargets((String) request.getSession().getAttribute("project_name"));
 			model.addAttribute("tgt", tgt);
@@ -377,8 +352,8 @@ public class ExtractionController {
 			ArrayList<CountryMaster> countries = this.es.getCountries();
 			model.addAttribute("countries", countries);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			logger.error(e.getMessage());
 		}
 		return new ModelAndView("extraction/SystemDetails");
 	}
@@ -400,7 +375,7 @@ public class ExtractionController {
 		JSONObject jsonObject = new JSONObject(x);
 		jsonObject.getJSONObject("body").getJSONObject("data").put("jwt", (String) request.getSession().getAttribute("jwt"));
 		x = jsonObject.toString();
-		resp = this.es.invokeRest(x, ExtractionController.feedComputeUrl + button_type);
+		resp = this.es.invokeRest(x, feedComputeUrl + button_type);
 		model.addAttribute("usernm", request.getSession().getAttribute("user_name"));
 		model.addAttribute("project", (String) request.getSession().getAttribute("project_name"));
 		String status0[] = resp.toString().split(":");
@@ -458,11 +433,12 @@ public class ExtractionController {
 	
 	@RequestMapping(value = "/extraction/DataDetails", method = RequestMethod.GET)
 	public ModelAndView DataDetails(ModelMap model, HttpServletRequest request) throws IOException {
-	
+		
+		
 		//String src_val = "Oracle";
 		try {
-			
-			model.addAttribute("src_val", src_val);
+				
+			model.addAttribute("src_val", ExtractionController.Source);
 			ArrayList<SourceSystemMaster> src_sys_val1 = new ArrayList<SourceSystemMaster>();
 			ArrayList<SourceSystemMaster> src_sys_val2 = new ArrayList<SourceSystemMaster>();
 			ArrayList<SourceSystemMaster> src_sys_val = es.getSources("Sybase", (String) request.getSession().getAttribute("project_name"));
@@ -481,13 +457,13 @@ public class ExtractionController {
 			model.addAttribute("usernm", (String) request.getSession().getAttribute("user_name"));
 			model.addAttribute("project", (String) request.getSession().getAttribute("project_name"));
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			logger.error(e.getMessage());
 		}
-		System.out.println("////////////////////////////////////////extraction/DataDetails"+src_val);
-		//return new ModelAndView("extraction/DataDetails" + src_val);
 		
-		return new ModelAndView("extraction/DataDetails" + "Sybase");
+
+		
+		return new ModelAndView("extraction/DataDetails" +Source);
 			}
 
 	@RequestMapping(value = "/extraction/DataDetailsSybase0", method = RequestMethod.POST)
@@ -579,9 +555,9 @@ public class ExtractionController {
 			ArrayList<SourceSystemMaster> src_sys_val1 = new ArrayList<SourceSystemMaster>();
 			ArrayList<SourceSystemMaster> src_sys_val;
 			
-			System.out.println("this.src_val"+this.src_val);
+			System.out.println("this.src_val"+this.Source);
 			
-			src_sys_val = this.es.getSources(this.src_val, (String) request.getSession().getAttribute("project_name"));
+			src_sys_val = this.es.getSources(this.Source, (String) request.getSession().getAttribute("project_name"));
 			
 			
 			System.out.println("src_sys_val   "+src_sys_val);
@@ -604,10 +580,8 @@ public class ExtractionController {
 			model.addAttribute("project", (String) request.getSession().getAttribute("project_name"));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
-		
-		System.out.println("src_val"+src_val);
 		
 		return new ModelAndView("extraction/ExtractData");
 	}
@@ -639,7 +613,7 @@ public class ExtractionController {
 		jsonObject.getJSONObject("body").getJSONObject("data").put("jwt", (String) request.getSession().getAttribute("jwt"));
 		x = jsonObject.toString();
 		// if (ext_type.equalsIgnoreCase("Batch")) {
-		resp = this.es.invokeRest(x, ExtractionController.schedularComputeUrl + "createDag");
+		resp = this.es.invokeRest(x, schedularComputeUrl + "createDag");
 		this.es.updateLoggerTable(feed_name);
 		// } else {
 		// resp = es.invokeRest(x, "extractData");
@@ -663,9 +637,7 @@ public class ExtractionController {
 		model.addAttribute("src_sys_val", src_sys_val);
 		model.addAttribute("usernm", (String) request.getSession().getAttribute("user_name"));
 		model.addAttribute("project", (String) request.getSession().getAttribute("project_name"));
-		
-		System.out.println("in extract data 2 src_val>>>"+src_val);
-		
+				
 		return new ModelAndView("extraction/ExtractData");
 	}
 
@@ -680,7 +652,7 @@ public class ExtractionController {
 		JSONObject jsonObject = new JSONObject(x);
 		jsonObject.getJSONObject("body").getJSONObject("data").put("jwt", (String) request.getSession().getAttribute("jwt"));
 		x = jsonObject.toString();
-		final_message = this.es.invokeRest(x, ExtractionController.schedularComputeUrl + "feednm/extractData");
+		final_message = this.es.invokeRest(x, schedularComputeUrl + "feednm/extractData");
 		model.addAttribute("successString", final_message);
 		/*
 		 * String status0[] = resp.toString().split(":"); System.out.println(status0[0]
@@ -712,8 +684,8 @@ public class ExtractionController {
 			feedarr = this.es.getRunFeeds((String) request.getSession().getAttribute("project_name"));
 			model.addAttribute("feedarr", feedarr);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			logger.error(e.getMessage());
 		}
 		return new ModelAndView("extraction/FeedRun");
 
@@ -732,8 +704,7 @@ public class ExtractionController {
 			runfeeds = this.es.getLastRunFeeds((String) request.getSession().getAttribute("project_name"), feed_val);
 			model.addAttribute("runfeeds", runfeeds);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 		return new ModelAndView("extraction/FeedRunStatus");
@@ -748,9 +719,9 @@ public class ExtractionController {
 			ArrayList<SourceSystemMaster> src_sys_val1 = new ArrayList<SourceSystemMaster>();
 			ArrayList<SourceSystemMaster> src_sys_val;
 			
-			System.out.println("source value>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>source value"+src_val);
+			System.out.println("source value>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>source value"+Source);
 			
-			src_sys_val = this.es.getSources(this.src_val, (String) request.getSession().getAttribute("project_name"));
+			src_sys_val = this.es.getSources(this.Source, (String) request.getSession().getAttribute("project_name"));
 			for (SourceSystemMaster ssm : src_sys_val) {
 				src_sys_val1.add(ssm);
 			}
@@ -761,16 +732,15 @@ public class ExtractionController {
 			model.addAttribute("usernm", (String) request.getSession().getAttribute("user_name"));
 			model.addAttribute("project", (String) request.getSession().getAttribute("project_name"));
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		
-		System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&77"+src_val);
+		System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&77"+Source);
 		
 		//return new ModelAndView("extraction/FeedDetails" + this.src_val);
 		
 		
-		return new ModelAndView("extraction/FeedDetails" + src_val);
+		return new ModelAndView("extraction/FeedDetails" + Source);
 	
 	}
 

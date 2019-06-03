@@ -36,8 +36,8 @@
 	</div>
 	<div class="form-group" id="service">
 		<label>Service Name/ID *</label> <input type="text"
-			class="form-control" id="service_name" name="service_name"
-			placeholder="Service Name/ID" value="${conn_val.service_name}">
+			class="form-control" id="db_name" name="db_name"
+			placeholder="Database Name" value="${conn_val.database_name}">
 	</div>
 	<div class="form-group">
 			<label>System *</label> <input type="text" class="form-control"
