@@ -57,11 +57,11 @@ import com.iig.gcp.extraction.utils.CSV;
 @SessionAttributes(value = { "user_name", "project_name", "jwt" })
 public class ExtractionController {
 
-	private static String oracle_compute_url;
+	private static String SybaseBackendUrl;
 
-	@Value("${oracle.create.micro.service.url}")
+	@Value("${sybase.create.micro.service.url}")
 	public void setOrclUrl(final String value) {
-		ExtractionController.oracle_compute_url = value;
+		ExtractionController.SybaseBackendUrl = value;
 	}
 
 	private static String target_compute_url;
@@ -209,7 +209,7 @@ public class ExtractionController {
 		
 		jsonObject.getJSONObject("body").getJSONObject("data").put("jwt", (String) request.getSession().getAttribute("jwt"));
 		x = jsonObject.toString();
-		resp = this.es.invokeRest(x, ExtractionController.oracle_compute_url + button_type);
+		resp = this.es.invokeRest(x, ExtractionController.SybaseBackendUrl + button_type);
 		//x, localhost:8181/addOracleConnection
 		String status0[] = resp.toString().split(":");
 		String status1[] = status0[1].split(",");
@@ -881,7 +881,7 @@ public class ExtractionController {
 		 * request.getSession().getAttribute("jwt"));
 		 * json_array_str=jsonObject.toString();
 		 */
-		resp = es.invokeRest(str, oracle_compute_url + "addTempTableInfo");
+		resp = es.invokeRest(str, SybaseBackendUrl + "addTempTableInfo");
 		String status0[] = resp.toString().split(":");
 		String status1[] = status0[1].split(",");
 		String status = status1[0].replaceAll("\'", "").trim();
@@ -891,7 +891,7 @@ public class ExtractionController {
 		if (status.equalsIgnoreCase("Failed")) {
 			model.addAttribute("errorString", final_message);
 		} else if (status.equalsIgnoreCase("Success")) {
-			resp = es.invokeRest(json_array_metadata_str, oracle_compute_url + "metaDataValidation");
+			resp = es.invokeRest(json_array_metadata_str, SybaseBackendUrl + "metaDataValidation");
 			String statusNew0[] = resp.toString().split(":");
 			String statusNew1[] = statusNew0[1].split(",");
 			status = statusNew1[0].replaceAll("\'", "").trim();
@@ -985,9 +985,9 @@ public class ExtractionController {
 		if (x.contains("feed_id1")) {
 			x = x.replace("feed_id1", "feed_id");
 
-			resp = es.invokeRest(x, oracle_compute_url + "editTempTableInfo");
+			resp = es.invokeRest(x, SybaseBackendUrl + "editTempTableInfo");
 		} else {
-			resp = es.invokeRest(x, oracle_compute_url + "addTempTableInfo");
+			resp = es.invokeRest(x, SybaseBackendUrl + "addTempTableInfo");
 		}
 
 		String status0[] = resp.toString().split(":");
@@ -1002,7 +1002,7 @@ public class ExtractionController {
 			JSONObject jsonObject1 = new JSONObject(x);
 			src_sys_id = jsonObject1.getJSONObject("body").getJSONObject("data").getString("feed_id");
 			String json_array_metadata_str = es.getJsonFromFeedSequence(project, src_sys_id);
-			resp = es.invokeRestAsyncronous(json_array_metadata_str, oracle_compute_url + "metaDataValidation");
+			resp = es.invokeRestAsyncronous(json_array_metadata_str, SybaseBackendUrl + "metaDataValidation");
 			
 			if (resp.equalsIgnoreCase("Started")) {
 				model.addAttribute("successString", "Metadata validation started");
@@ -1065,7 +1065,7 @@ public class ExtractionController {
 		File file = convert(multiPartFile1);
 		String json_array_str = es.getJsonFromFile(file, usernm, project, Integer.parseInt(src_sys_id));
 		String json_array_metadata_str = es.getJsonFromFeedSequence(project, src_sys_id);
-		resp = es.invokeRest(json_array_str, oracle_compute_url + "editTempTableInfo");
+		resp = es.invokeRest(json_array_str, SybaseBackendUrl + "editTempTableInfo");
 		String status0[] = resp.toString().split(":");
 		String status1[] = status0[1].split(",");
 		String status = status1[0].replaceAll("\'", "").trim();
@@ -1077,7 +1077,7 @@ public class ExtractionController {
 		}
 		else if (status.equalsIgnoreCase("Success")) {
 	
-			resp = es.invokeRestAsyncronous(json_array_metadata_str, oracle_compute_url + "metaDataValidation");
+			resp = es.invokeRestAsyncronous(json_array_metadata_str, SybaseBackendUrl + "metaDataValidation");
 			if (resp.equalsIgnoreCase("Started")) {
 				model.addAttribute("SuccessString", "Metadata validation started");
 			}

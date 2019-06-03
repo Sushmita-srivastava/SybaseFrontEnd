@@ -37,7 +37,7 @@
 			<attribute name="m2e-apt" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/sushmita.srivastava/Desktop/jconn4/jconn4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/annu.kumar/Desktop/JARS/jconn4.jar"/>
 	<classpathentry kind="src" output="target/test-classes" path="target/generated-test-sources/test-annotations">
 		<attributes>
 			<attribute name="optional" value="true"/>
