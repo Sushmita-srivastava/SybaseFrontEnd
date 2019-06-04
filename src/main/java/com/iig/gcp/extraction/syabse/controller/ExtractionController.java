@@ -9,9 +9,7 @@ import java.io.InputStream;
 import java.net.URLConnection;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,7 +17,6 @@ import javax.validation.Valid;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,10 +38,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.iig.gcp.CustomAuthenticationProvider;
-import com.iig.gcp.IIGStarterParent;
 import com.iig.gcp.extraction.sybase.dto.ConnectionMaster;
 import com.iig.gcp.extraction.sybase.dto.CountryMaster;
 import com.iig.gcp.extraction.sybase.dto.DataDetailBean;
@@ -55,7 +49,6 @@ import com.iig.gcp.extraction.sybase.dto.SourceSystemMaster;
 import com.iig.gcp.extraction.sybase.dto.TargetMaster;
 import com.iig.gcp.extraction.sybase.dto.TempDataDetailBean;
 import com.iig.gcp.extraction.sybase.service.ExtractionService;
-import com.iig.gcp.extraction.utils.CSV;
 
 @Controller
 @SessionAttributes(value = { "user_name", "project_name", "jwt" })
@@ -89,11 +82,11 @@ public class ExtractionController {
 	@Value("${parent.front.micro.services}")
 	private String parentMicroServices;
 	
-	final static String Source;
-	static {Source="Sybase";}
+	static final String SOURCE;
+	static {SOURCE="Sybase";}
 
 
-	@RequestMapping(value = { "/", "/login" }, method = RequestMethod.GET)
+	@GetMapping(value = { "/", "/login" })
 	public ModelAndView extractionHome(@Valid @ModelAttribute("jsonObject") final String jsonObject,final ModelMap model,final HttpServletRequest request) throws JSONException {
 		JSONObject jObj = new JSONObject(jsonObject);
 		String user_name = jObj.getString("userId");
@@ -155,7 +148,7 @@ public class ExtractionController {
 	//@RequestMapping(value = "/extraction/ConnectionDetailsSybase", method = RequestMethod.GET)
 	public ModelAndView ConnectionDetails(final ModelMap model,final HttpServletRequest request) {
 		
-		model.addAttribute("src_val", Source);
+		model.addAttribute("src_val", SOURCE);
 		model.addAttribute("usernm", (String) request.getSession().getAttribute("user_name"));
 		model.addAttribute("project", (String) request.getSession().getAttribute("project_name"));
 
@@ -164,7 +157,7 @@ public class ExtractionController {
 		try {
 			system = this.es.getSystem((String) request.getSession().getAttribute("project_name"));
 			model.addAttribute("system", system);
-			ArrayList<ConnectionMaster> conn_val = this.es.getConnections(Source, (String) request.getSession().getAttribute("project_name"));
+			ArrayList<ConnectionMaster> conn_val = this.es.getConnections(SOURCE, (String) request.getSession().getAttribute("project_name"));
 			model.addAttribute("conn_val", conn_val);
 			ArrayList<DriveMaster> drive =this.es
 			.getDrives((String) request.getSession().getAttribute("project_name"));
@@ -337,13 +330,13 @@ public class ExtractionController {
 		model.addAttribute("src_val", "Sybase");
 		ArrayList<SourceSystemMaster> src_sys_val;
 		try {
-			src_sys_val = this.es.getSources(this.Source, (String) request.getSession().getAttribute("project_name"));
+			src_sys_val = this.es.getSources(this.SOURCE, (String) request.getSession().getAttribute("project_name"));
 			model.addAttribute("src_sys_val", src_sys_val);
 			
-			System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+Source);
+			System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+SOURCE);
 			
 			
-			ArrayList<ConnectionMaster> conn_val = this.es.getConnections(this.Source, (String) request.getSession().getAttribute("project_name"));
+			ArrayList<ConnectionMaster> conn_val = this.es.getConnections(this.SOURCE, (String) request.getSession().getAttribute("project_name"));
 			model.addAttribute("conn_val", conn_val);
 			ArrayList<TargetMaster> tgt = this.es.getTargets((String) request.getSession().getAttribute("project_name"));
 			model.addAttribute("tgt", tgt);
@@ -438,7 +431,7 @@ public class ExtractionController {
 		//String src_val = "Oracle";
 		try {
 				
-			model.addAttribute("src_val", ExtractionController.Source);
+			model.addAttribute("src_val", ExtractionController.SOURCE);
 			ArrayList<SourceSystemMaster> src_sys_val1 = new ArrayList<SourceSystemMaster>();
 			ArrayList<SourceSystemMaster> src_sys_val2 = new ArrayList<SourceSystemMaster>();
 			ArrayList<SourceSystemMaster> src_sys_val = es.getSources("Sybase", (String) request.getSession().getAttribute("project_name"));
@@ -463,7 +456,7 @@ public class ExtractionController {
 		
 
 		
-		return new ModelAndView("extraction/DataDetails" +Source);
+		return new ModelAndView("extraction/DataDetails" +SOURCE);
 			}
 
 	@RequestMapping(value = "/extraction/DataDetailsSybase0", method = RequestMethod.POST)
@@ -555,9 +548,9 @@ public class ExtractionController {
 			ArrayList<SourceSystemMaster> src_sys_val1 = new ArrayList<SourceSystemMaster>();
 			ArrayList<SourceSystemMaster> src_sys_val;
 			
-			System.out.println("this.src_val"+this.Source);
+			System.out.println("this.src_val"+this.SOURCE);
 			
-			src_sys_val = this.es.getSources(this.Source, (String) request.getSession().getAttribute("project_name"));
+			src_sys_val = this.es.getSources(this.SOURCE, (String) request.getSession().getAttribute("project_name"));
 			
 			
 			System.out.println("src_sys_val   "+src_sys_val);
@@ -719,9 +712,9 @@ public class ExtractionController {
 			ArrayList<SourceSystemMaster> src_sys_val1 = new ArrayList<SourceSystemMaster>();
 			ArrayList<SourceSystemMaster> src_sys_val;
 			
-			System.out.println("source value>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>source value"+Source);
+			System.out.println("source value>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>source value"+SOURCE);
 			
-			src_sys_val = this.es.getSources(this.Source, (String) request.getSession().getAttribute("project_name"));
+			src_sys_val = this.es.getSources(this.SOURCE, (String) request.getSession().getAttribute("project_name"));
 			for (SourceSystemMaster ssm : src_sys_val) {
 				src_sys_val1.add(ssm);
 			}
@@ -735,12 +728,12 @@ public class ExtractionController {
 			logger.error(e.getMessage());
 		}
 		
-		System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&77"+Source);
+		System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&77"+SOURCE);
 		
 		//return new ModelAndView("extraction/FeedDetails" + this.src_val);
 		
 		
-		return new ModelAndView("extraction/FeedDetails" + Source);
+		return new ModelAndView("extraction/FeedDetails" + SOURCE);
 	
 	}
 
