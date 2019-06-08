@@ -44,7 +44,7 @@
 				id="system" name="system" placeholder="System" value="${conn_val.system}" readonly="readonly">
 		</div>
 </fieldset>
-<button onclick="return jsonconstruct('updOracleConnection');"
+<button onclick="return jsonconstruct('updSybaseConnection');"
 	class="btn btn-rounded btn-gradient-info mr-2">Update</button>
-<button onclick="return jsonconstruct('delOracleConnection');"
+<button onclick="return jsonconstruct('delSybaseConnection');"
 	class="btn btn-rounded btn-gradient-info mr-2">Delete</button>

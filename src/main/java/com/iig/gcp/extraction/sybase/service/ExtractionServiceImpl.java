@@ -35,6 +35,8 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -71,6 +73,8 @@ public class ExtractionServiceImpl implements ExtractionService {
 	@Autowired
 	private ConnectionUtils ConnectionUtils;
 	private static String SCHEDULER_MASTER_TABLE = "JUNIPER_SCH_MASTER_JOB_DETAIL";
+	
+	private static final Logger logger =  LogManager.getLogger(ExtractionServiceImpl.class);
 
 	@Override
 	public String invokeRest(String json, String url) throws UnsupportedOperationException, Exception {
@@ -83,12 +87,14 @@ public class ExtractionServiceImpl implements ExtractionService {
 		
 		HttpPost postRequest = new HttpPost(url);
 		
-		//localhost:8181/addOracleConnection
+	
 		postRequest.setHeader("Content-Type", "application/json");
 		StringEntity input = new StringEntity(json);
 		postRequest.setEntity(input);
+		System.out.println("Executing POST Request!");
 		HttpResponse response = httpClient.execute(postRequest);
 		String response_string = EntityUtils.toString(response.getEntity(), "UTF-8");
+		System.out.println("response_string>>>"+response_string);
 		if (response.getStatusLine().getStatusCode() != 200) {
 			resp = "Error" + response_string;
 			throw new Exception("Error" + response_string);
@@ -104,7 +110,7 @@ public class ExtractionServiceImpl implements ExtractionService {
 		CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
 		try{
 			
-				// Start the client 
+			// Start the client 
 			httpclient.start();
 		// Execute request
 			final HttpPost request1 = new HttpPost(url);
@@ -117,6 +123,7 @@ public class ExtractionServiceImpl implements ExtractionService {
 			resp="Started";
 		}catch(Exception e){
 			resp="Started";
+			logger.info(e.getMessage());
 		}finally {
 			httpclient.close();
 		}
@@ -132,7 +139,7 @@ public class ExtractionServiceImpl implements ExtractionService {
 		try {
 			connection = ConnectionUtils.getConnection();
 			pstm = connection.prepareStatement("SELECT DISTINCT n.FEED_UNIQUE_NAME FROM  JUNIPER_EXT_NIFI_STATUS n LEFT JOIN JUNIPER_PROJECT_MASTER p"
-					+ " ON n.PROJECT_SEQUENCE=p.PROJECT_SEQUENCE WHERE p.PROJECT_ID=? AND UPPER(n.PG_TYPE)='ORACLE'");
+					+ " ON n.PROJECT_SEQUENCE=p.PROJECT_SEQUENCE WHERE p.PROJECT_ID=? AND UPPER(n.PG_TYPE)='SYBASE'");
 			pstm.setString(1, project_id);
 			ResultSet rs = pstm.executeQuery();
 			while (rs.next()) {
@@ -174,7 +181,7 @@ public class ExtractionServiceImpl implements ExtractionService {
 			}
 
 		} catch (SQLException e) {
-			System.out.println("Exception occured " + e);
+			logger.info("Throwing Exception "+e.getMessage());
 			throw e;
 		} finally {
 			pstm.close();
@@ -219,7 +226,7 @@ public class ExtractionServiceImpl implements ExtractionService {
 				arrConnectionMaster.add(conn);
 			}
 		} catch (SQLException e) {
-			System.out.println("Exception occured " + e);
+			logger.info(e.getMessage());
 			throw e;
 		} finally {
 			pstm.close();
@@ -550,9 +557,7 @@ System.out.println("table name>>>>>>>>>>>   "+table_name);
 		System.out.println("project_id>>>"+project_id);
 		
 		try {
-			
-			
-			
+		
 			connection = ConnectionUtils.getConnection();
 			String query = "select feed_sequence,feed_unique_name, " + "rtrim(xmlagg(XMLELEMENT(e,table_sequence,',').EXTRACT('//text()')).GetClobVal(),',') tbl_seq " + "from " + "("
 					+ "select a.FEED_SEQUENCE,a.FEED_UNIQUE_NAME,c.table_sequence " + "from " + "JUNIPER_EXT_FEED_MASTER a " + "inner join JUNIPER_EXT_FEED_SRC_TGT_LINK b "

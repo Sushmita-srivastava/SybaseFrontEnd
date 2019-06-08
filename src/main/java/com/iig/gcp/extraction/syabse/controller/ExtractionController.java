@@ -180,7 +180,6 @@ public class ExtractionController {
 		jsonObject.getJSONObject("body").getJSONObject("data").put("jwt", (String) request.getSession().getAttribute("jwt"));
 		x = jsonObject.toString();
 		resp = this.es.invokeRest(x, sybaseBackendUrl + button_type);
-		//x, localhost:8181/addOracleConnection
 		String status0[] = resp.toString().split(":");
 		String status1[] = status0[1].split(",");
 		String status = status1[0].replaceAll("\'", "").trim();
@@ -192,7 +191,7 @@ public class ExtractionController {
 		} else if (status.equalsIgnoreCase("Success")) {
 			model.addAttribute("successString", final_message);
 		}
-		model.addAttribute("src_val", src_val);
+		model.addAttribute("src_val", SOURCE);
 		// UserAccount u = (UserAccount) 
 		// request.getSession().getAttribute("user");
 		model.addAttribute("usernm", (String) request.getSession().getAttribute("user_name"));
@@ -327,13 +326,13 @@ public class ExtractionController {
 	
 	@RequestMapping(value = "/extraction/SystemDetails", method = RequestMethod.GET)
 	public ModelAndView SystemDetails(final ModelMap model,final HttpServletRequest request) {
-		model.addAttribute("src_val", "Sybase");
+		model.addAttribute("src_val", SOURCE);
 		ArrayList<SourceSystemMaster> src_sys_val;
 		try {
-			src_sys_val = this.es.getSources(this.SOURCE, (String) request.getSession().getAttribute("project_name"));
+			src_sys_val = this.es.getSources(SOURCE, (String) request.getSession().getAttribute("project_name"));
 			model.addAttribute("src_sys_val", src_sys_val);
 			
-			System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+SOURCE);
+			System.out.println(">>"+SOURCE);
 			
 			
 			ArrayList<ConnectionMaster> conn_val = this.es.getConnections(this.SOURCE, (String) request.getSession().getAttribute("project_name"));
@@ -427,8 +426,6 @@ public class ExtractionController {
 	@RequestMapping(value = "/extraction/DataDetails", method = RequestMethod.GET)
 	public ModelAndView DataDetails(ModelMap model, HttpServletRequest request) throws IOException {
 		
-		
-		//String src_val = "Oracle";
 		try {
 				
 			model.addAttribute("src_val", ExtractionController.SOURCE);
@@ -465,7 +462,7 @@ public class ExtractionController {
 		String db_name = null;
 		ConnectionMaster conn_val = es.getConnections1(src_val, src_sys_id);
 		
-		System.out.println("*****************************888source_sys_id"+src_sys_id);
+		System.out.println("*****************************888source_sys_id"+src_val);
 		
 		//ConnectionMaster conn_val = es.getConnections1("Sybase", src_sys_id);
 		model.addAttribute("conn_val", conn_val);
@@ -534,9 +531,9 @@ public class ExtractionController {
 		model.addAttribute("rec_count", rec_count);
 		ConnectionMaster conn_val = es.getConnections1(src_val, src_sys_id);
 		model.addAttribute("conn_val", conn_val);
-		String href1 = "/assets/oracle/Juniper_Extraction_Bulk_Upload_Template.xlsm";
+		String href1 = "/assets/sybase/Juniper_Extraction_Bulk_Upload_Template.xlsm";
 		model.addAttribute("href1", href1);
-		String href2 = "/assets/oracle/Juniper_Extraction_Bulk_Upload_Template.xlsm";
+		String href2 = "/assets/sybase/Juniper_Extraction_Bulk_Upload_Template.xlsm";
 		model.addAttribute("href2", href2);
 		return new ModelAndView("extraction/DataDetailsEditSybase");
 	}
@@ -544,7 +541,7 @@ public class ExtractionController {
 	@RequestMapping(value = "/extraction/ExtractData", method = RequestMethod.GET)
 	public ModelAndView ExtractData(final ModelMap model,final HttpServletRequest request) throws IOException {
 		try {
-			model.addAttribute("src_val", "Sybase");
+			model.addAttribute("src_val", SOURCE);
 			ArrayList<SourceSystemMaster> src_sys_val1 = new ArrayList<SourceSystemMaster>();
 			ArrayList<SourceSystemMaster> src_sys_val;
 			
@@ -559,6 +556,9 @@ public class ExtractionController {
 			for (SourceSystemMaster ssm : src_sys_val) {
 				
 				System.out.println("db name       "+ssm.getDb_name());
+				System.out.println("ssm.getSrc_sys_id() "+ssm.getSrc_sys_id());
+				System.out.println("ssm.getSrc_unique_name() "+ssm.getSrc_unique_name());
+				System.out.println("ssm.getTable_list() "+ssm.getTable_list());
 				
 				if ((ssm.getFile_list() == null || ssm.getFile_list().isEmpty()) && (ssm.getTable_list() == null || ssm.getTable_list().isEmpty())
 						&& (ssm.getDb_name() == null || ssm.getDb_name().isEmpty())) {
@@ -566,14 +566,14 @@ public class ExtractionController {
 				} else {
 					src_sys_val1.add(ssm);
 				}
-			}
-			
+			}			
 			model.addAttribute("src_sys_val", src_sys_val);
 			model.addAttribute("usernm", (String) request.getSession().getAttribute("user_name"));
 			model.addAttribute("project", (String) request.getSession().getAttribute("project_name"));
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+
 			logger.error(e.getMessage());
+
 		}
 		
 		return new ModelAndView("extraction/ExtractData");
@@ -708,11 +708,11 @@ public class ExtractionController {
 	@RequestMapping(value = "/extraction/FeedDetails", method = RequestMethod.GET)
 	public ModelAndView FeedDetails(final ModelMap model, HttpServletRequest request) throws IOException {
 		try {
-			model.addAttribute("src_val", "Oracle");
+			model.addAttribute("src_val", SOURCE);
 			ArrayList<SourceSystemMaster> src_sys_val1 = new ArrayList<SourceSystemMaster>();
 			ArrayList<SourceSystemMaster> src_sys_val;
 			
-			System.out.println("source value>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>source value"+SOURCE);
+			System.out.println("Feed Det source value"+SOURCE);
 			
 			src_sys_val = this.es.getSources(this.SOURCE, (String) request.getSession().getAttribute("project_name"));
 			for (SourceSystemMaster ssm : src_sys_val) {
@@ -744,35 +744,35 @@ public class ExtractionController {
 		String message = "Testing";
 		String src_sys_val = this.es.getFeedName(src_sys_id);
 		ArrayList<TempDataDetailBean> arrddb = this.es.getInProgressTempData(src_sys_id, src_val, (String) request.getSession().getAttribute("project_name"));
-		System.out.println("1.>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<"+arrddb.size());
+		System.out.println("1.<<<"+arrddb.size());
 		if(arrddb.isEmpty()) {
 			
-			System.out.println("2.>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<"+arrddb.size());
+			System.out.println("2.<<<<<"+arrddb.size());
 			
 			arrddb = this.es.getValidatedTempData(src_sys_id,src_val, (String) request.getSession().getAttribute("project_name"));
 			if(arrddb.isEmpty()) {
 				
-				System.out.println("3.>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<"+arrddb.size());
+				System.out.println("3.<<<<<<"+arrddb.size());
 				
 				
 				message = "The selected feed " + src_sys_val + " is validated and has zero errors";
 				model.addAttribute("message", message);
 			} else {
 				
-				System.out.println("4.>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<"+arrddb.size());
+				System.out.println("4.<<"+arrddb.size());
 				
 				message = "The selected feed " + src_sys_val + " validation is completed and has " + arrddb.size() + "errors";
 				model.addAttribute("message", message);
 			}
 		} else {
 			
-			System.out.println("5.>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<"+arrddb.size());
+			System.out.println("5.<<"+arrddb.size());
 			message = "The selected feed " + src_sys_val + " validation is in progress and " + arrddb.size() + " tables are yet to be validated";
 			model.addAttribute("message", message);
 		}
 		model.addAttribute("arrddb", arrddb);
 		// model.addAttribute("schem", schema_name);
-		System.out.println("6.>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<"+arrddb.size());
+		System.out.println("6.<<"+arrddb.size());
 		return new ModelAndView("/extraction/FeedValidationDashboard");
 	}
 
@@ -797,7 +797,7 @@ public class ExtractionController {
 			HttpServletRequest request) throws UnsupportedOperationException, Exception {
 		// String href1 = es.getBulkDataTemplate(src_sys_id);
 		
-		String href1 = "/assets/oracle/Juniper_Extraction_Bulk_Upload_Template.xlsm";
+		String href1 = "/assets/sybase/Juniper_Extraction_Bulk_Upload_Template.xlsm";
 		
 		
 		
@@ -943,6 +943,9 @@ public class ExtractionController {
 		String resp = "";
 		String src_sys_id = "";
 		String project = (String) request.getSession().getAttribute("project_name");
+		
+		System.out.println("DataDetailsSybase3 : "+x);
+		
 		JSONObject jsonObject = new JSONObject(x);
 		jsonObject.getJSONObject("body").getJSONObject("data").put("jwt", (String) request.getSession().getAttribute("jwt"));
 		x = jsonObject.toString();
@@ -967,6 +970,10 @@ public class ExtractionController {
 			JSONObject jsonObject1 = new JSONObject(x);
 			src_sys_id = jsonObject1.getJSONObject("body").getJSONObject("data").getString("feed_id");
 			String json_array_metadata_str = es.getJsonFromFeedSequence(project, src_sys_id);
+			
+			System.out.println("json_array_metadata_str  : >>"+json_array_metadata_str);
+			
+			
 			resp = es.invokeRestAsyncronous(json_array_metadata_str, sybaseBackendUrl + "metaDataValidation");
 			
 			if (resp.equalsIgnoreCase("Started")) {
