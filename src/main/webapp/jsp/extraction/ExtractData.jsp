@@ -14,8 +14,8 @@
 		});
 		var x = '{"header":{},"body":{"data":' + JSON.stringify(data) + '}}';
 		document.getElementById('x').value = x;
-	alert(x);
-	console.log(x);
+	//alert(x);
+	//console.log(x);
 		document.getElementById('ExtractData').submit();
 	}
 	/* function jsonconstruct1() {
@@ -43,13 +43,13 @@
 										function() {
 											$("#loading").show();
 											var feed_name = $(this).val();
-								alert("feed_name "+feed_name)
+								//alert("feed_name "+feed_name)
 											var src_val = document
 													.getElementById("src_val").value;
-								alert("src_val "+src_val)
+								//alert("src_val "+src_val)
 											if (src_val == "Sybase") {
 												$("#selectExtractmode").show();
-												alert(src_val)
+												//alert(src_val)
 											}
 											$
 													.post(

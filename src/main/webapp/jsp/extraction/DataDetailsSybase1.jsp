@@ -12,7 +12,7 @@
 				<input list="tables${id}" name="table_name${id}" id="table_name${id}" class="form-control" onchange="disableForm(DataDetails);getcols(this.id)">
 			  	<datalist id="tables${id}">
 			    	<c:forEach items="${tables}" var="tables">
-						<option value="${schema_name}.${tables}">
+						<option value="${schema_name}..${tables}">
 					</c:forEach>
 			  	</datalist>
 				

@@ -84,7 +84,7 @@ public class ExtractionServiceImpl implements ExtractionService {
 		
 		System.out.println(">>>>>>>>>>>"+url);
 		
-		
+		System.out.println("JSON formed: "+ json);
 		HttpPost postRequest = new HttpPost(url);
 		
 	
@@ -514,11 +514,11 @@ public class ExtractionServiceImpl implements ExtractionService {
 				encrypt = cm.getEncrypt();
 			}
 		}
-System.out.println("table name>>>>>>>>>>>   "+table_name);
+	System.out.println("table name>>>>>>>>>>>   "+table_name);
 		String tbls[] = table_name.split(",");
 		for (int i = 0; i < tbls.length; i++) {
 			try {
-				String tblsx[] = tbls[i].split("\\.");
+				String tblsx[] = tbls[i].split("\\..");
 				//query = "SELECT column_name FROM all_tab_cols where table_name='" + tblsx[1] + "' and owner='" + schema_name + "' and column_id is not null order by column_name";
 				query="select b.name as coulumnName from sysobjects a left join syscolumns b on a.id=b.id where a.name='"+tblsx[1]+"'";
 				System.out.println("query"+query);
@@ -1026,7 +1026,7 @@ System.out.println("table name>>>>>>>>>>>   "+table_name);
 			}
 
 			// Get Target Details from Src ID
-			query = "SELECT TARGET_UNIQUE_NAME,TARGET_TYPE,S.SYSTEM_EIM,case when UPPER(TRIM((target_type))='HDFS' then hdp_knox_host else gcp_project end as target_host FROM JUNIPER_EXT_TARGET_CONN_MASTER C\r\n"
+			query = "SELECT TARGET_UNIQUE_NAME,TARGET_TYPE,S.SYSTEM_EIM,case when UPPER(TRIM((target_type)))='HDFS' then hdp_knox_host else gcp_project end as target_host FROM JUNIPER_EXT_TARGET_CONN_MASTER C\r\n"
 					+ "INNER JOIN  JUNIPER_EXT_FEED_SRC_TGT_LINK L ON C.TARGET_CONN_SEQUENCE=L.TARGET_SEQUENCE \r\n"
 					+ "INNER JOIN JUNIPER_SYSTEM_MASTER S ON C.system_sequence=S.system_sequence\r\n"
 					+ "left outer join juniper_ext_gcp_master G on G.gcp_sequence  = C.gcp_sequence WHERE l.FEED_SEQUENCE=" + src_id;

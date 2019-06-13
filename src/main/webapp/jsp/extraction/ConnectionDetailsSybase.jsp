@@ -46,7 +46,7 @@
 		var x = '{"header":{},"body":{"data":' + JSON.stringify(data) + '}}';
 		document.getElementById('x').value = x;
 		//console.log(x);
-		alert(x);
+		//alert(x);
 		document.getElementById('ConnectionDetails').submit();
 	}
 	$(document)

@@ -85,7 +85,7 @@ function loadcheck(val) {
 			});
 		}
 	} else if (val == 'bulk_load') {
-		alert("in bulk load");
+		//alert("in bulk load");
 		document.getElementById("schdiv").style.display="none";
 		
 		var selection = $("input[name='radio']:checked").val();
@@ -101,13 +101,13 @@ function loadcheck(val) {
 			alert("src_sys_id 222 "+src_sys_id);
 		}
 
-		alert("in line 104");
+		//alert("in line 104");
 		document.getElementById("bord").style.display="block";
-		alert("in line 106")
+		//alert("in line 106")
 	//document.getElementById("Schdiv").innerHTML="";
-		alert("in line 108")
+		//alert("in line 108")
 		document.getElementById("but").style.display="none";
-		alert("in line 110");
+		//alert("in line 110");
 		$.post('${pageContext.request.contextPath}/extraction/BulkLoadTest',
 		{
 			src_sys_id : src_sys_id,
